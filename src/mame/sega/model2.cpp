@@ -145,6 +145,7 @@ void model2_state::machine_start()
 	debug_init();
 
 	m_output.resolve();
+	m_wheel_motor.resolve();
 
 	save_item(NAME(m_intreq));
 	save_item(NAME(m_intena));
@@ -801,7 +802,7 @@ void model2_state::push_geo_data(u32 data)
 
 u32 model2_state::geo_prg_r(offs_t offset)
 {
-	popmessage("Read from Geometry FIFO at %08x, contact MAMEdev",offset*4);
+	popmessage("Read from Geometry FIFO at %08x", offset * 4);
 	return 0xffffffff;
 }
 
@@ -891,7 +892,7 @@ void model2_state::geo_w(offs_t offset, u32 data)
 					if(function == 1)
 					{
 						r |= ((address>>10)&3)<<29; // Eye Mode, used by Sega Rally on car select
-						//popmessage("Eye mode %02x? Contact MAMEdev",function);
+						//popmessage("Eye mode %02x?",function);
 					}
 				}
 				push_geo_data(r);
@@ -1203,7 +1204,15 @@ void model2o_state::daytona_output_w(u8 data)
 
 	machine().bookkeeping().coin_counter_w(1, BIT(data, 1));
 	machine().bookkeeping().coin_counter_w(0, BIT(data, 0));
+
 	m_output[1] = data;
+
+	output().set_value("lamp_leader", BIT(data, 7));
+	output().set_value("lamp_vr4", BIT(data, 6));
+	output().set_value("lamp_vr3", BIT(data, 5));
+	output().set_value("lamp_vr2", BIT(data, 4));
+	output().set_value("lamp_vr1", BIT(data, 3));
+	output().set_value("lamp_start", BIT(data, 2));
 }
 
 void model2o_state::desert_output_w(u8 data)
@@ -1219,7 +1228,15 @@ void model2o_state::desert_output_w(u8 data)
 
 	machine().bookkeeping().coin_counter_w(1, BIT(data, 1));
 	machine().bookkeeping().coin_counter_w(0, BIT(data, 0));
+		
 	m_output[1] = data;
+
+	output().set_value("cannon_motor", BIT(data, 7));
+	output().set_value("machinegun_motor", BIT(data, 6));
+	output().set_value("lamp_vr1", BIT(data, 5));
+	output().set_value("lamp_vr2", BIT(data, 4));
+	output().set_value("lamp_vr3", BIT(data, 3));
+	output().set_value("lamp_start", BIT(data, 2));
 }
 
 void model2o_state::vcop_output_w(u8 data)
@@ -1231,9 +1248,16 @@ void model2o_state::vcop_output_w(u8 data)
 
 	machine().bookkeeping().coin_counter_w(1, BIT(~data, 1));
 	machine().bookkeeping().coin_counter_w(0, BIT(~data, 0));
-	m_output[1] = data;
-}
 
+	m_output[1] = data;
+
+	output().set_value("start_led_1", BIT(data, 2));
+	output().set_value("start_led_2", BIT(data, 3));
+	output().set_value("unknown_4", BIT(data, 4));
+	output().set_value("unknown_5", BIT(data, 5));
+	output().set_value("unknown_6", BIT(data, 6));
+	output().set_value("unknown_7", BIT(data, 7));
+}
 
 //**************************************************************************
 //  I/O BOARD
@@ -1548,7 +1572,7 @@ void model2_state::rchase2_drive_board_w(u8 data)
 
 void model2_state::drive_board_w(u8 data)
 {
-	m_output[0] = data;
+	m_wheel_motor = data;
 	m_driveio_comm_data = data;
 	if (m_drivecpu)
 		m_drivecpu->set_input_line(0, HOLD_LINE);
@@ -1557,8 +1581,45 @@ void model2_state::drive_board_w(u8 data)
 void model2_state::gen_outputs_w(u8 data)
 {
 	m_output[1] = data;
-}
 
+	const char* name = machine().system().name;
+
+	if (strncmp(name, "srallyc", 7) == 0)
+	{
+		output().set_value("Lamp_Start", BIT(data, 2));
+		output().set_value("Lampe_View", BIT(data, 5));
+		output().set_value("Lamp_Race_Leader", BIT(data, 7));
+	}
+
+	if (strncmp(name, "indy500", 7) == 0)
+	{
+		output().set_value("Lamp_Start", BIT(data, 2));
+		output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
+		output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
+		output().set_value("Lamp_Race_Leader", BIT(data, 7));
+	}
+
+	if (strncmp(name, "overrev", 7) == 0)
+	{
+		output().set_value("Lamp_Start", BIT(data, 2));
+		output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
+		output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
+	}
+
+	if (strncmp(name, "sgt24h", 6) == 0)
+	{
+		output().set_value("Lamp_Start", BIT(data, 2));
+		output().set_value("Lamp_View", BIT(data, 3));
+	}
+
+	if (strncmp(name, "stcc", 4) == 0)
+	{
+		output().set_value("Lamp_Start", BIT(data, 2));
+		output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
+		output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
+		output().set_value("Lamp_Rev_Max", BIT(data, 3));
+	}
+}
 
 //**************************************************************************
 //  INPUT HANDLING
