@@ -271,6 +271,7 @@ public:
 		m_dsw(*this, "DSW"),
 		m_analog(*this, "ANALOG%u", 1U),
 		m_pcb_digit(*this, "pcbdigit%u", 0U),
+		m_pcb_output(*this, "pcboutput%u", 0U),
 		m_cg_view(*this, "cg_view")
 	{ }
 
@@ -306,6 +307,7 @@ private:
 	required_ioport m_dsw;
 	required_ioport_array<5> m_analog;
 	output_finder<2> m_pcb_digit;
+	output_finder<1> m_pcb_output;
 	memory_view m_cg_view;
 
 	bool m_sound_irq_enabled = false;
@@ -379,7 +381,7 @@ void nwktr_state::sysreg_w(offs_t offset, uint8_t data)
 		case 1:
 			m_pcb_digit[offset] = bitswap<7>(~data , 0, 1, 2, 3, 4, 5, 6);
 			break;
-
+		
 		case 3:
 			/*
 			    The bit used for JVSTXEN changes between 3 and 4 based on the lower 2 bits of IN2.
@@ -397,7 +399,7 @@ void nwktr_state::sysreg_w(offs_t offset, uint8_t data)
 			m_adc12138->sclk_w(BIT(data, 0));
 			break;
 		}
-
+	
 		case 7:
 			/*
 			    0x80 = EXRES1
@@ -420,7 +422,9 @@ void nwktr_state::sysreg_w(offs_t offset, uint8_t data)
 
 			m_cg_view.select(m_konppc->get_cgboard_id() ? 1 : 0);
 			break;
-
+		case 8: // <--- NEUER FFB OUTPUT REGISTER
+			m_pcb_output[0] = data; // 'data' ist der FFB-Stärkewert (0x00 bis 0xFF)
+			break;
 		default:
 			break;
 	}
@@ -449,6 +453,7 @@ void nwktr_state::soundtimer_ack_w(uint16_t data)
 void nwktr_state::machine_start()
 {
 	m_pcb_digit.resolve();
+	m_pcb_output.resolve();
 
 	// set conservative DRC options
 	m_maincpu->ppcdrc_set_options(PPCDRC_COMPATIBLE_OPTIONS);
