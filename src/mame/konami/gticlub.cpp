@@ -302,8 +302,6 @@ protected:
 	optional_ioport_array<4> m_analog;
 	required_ioport_array<4> m_ports;
 	output_finder<3> m_pcb_digit;
-	output_finder<2> m_pcb_digit;
-	output_finder<1> m_pcb_output;
 	memory_view m_cg_view;
 
 	bool m_sound_irq_enabled = false;
