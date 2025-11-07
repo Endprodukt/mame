@@ -216,7 +216,7 @@ void menu_main::populate()
 		item_append(_("menu-main", "Close Menu"), 0, (void *)DISMISS);
 	}
 }
-
+}
 
 /*-------------------------------------------------
     handle - handle main menu events
