@@ -8,6 +8,8 @@ TODO:
 - pc9801: hangs similarly around SC_READ;
 - Hookup to MZ-2500 SASI i/f;
 - Hookup to OMTI-5000 series;
+- Support LUN properly (should be two disks/tapes for one controller);
+- Handle success/error state properly (page 7-4/62)
 
 References:
 - http://www.bitsavers.org/pdf/dtc/DTC-500/09-00231A_DTC_500DB_Intelligent_Controllers_Mar86.pdf
@@ -91,7 +93,7 @@ void nscsi_dtc510_device::scsi_command()
 			scsi_status_complete(SS_NOT_READY);
 			scsi_sense_buffer[0] = SK_DRIVE_NOT_READY;
 		} else {
-			m_seek = 0;
+			// lba = 0;
 			scsi_status_complete(SS_GOOD);
 		}
 		break;
@@ -101,7 +103,7 @@ void nscsi_dtc510_device::scsi_command()
 			scsi_status_complete(SS_NOT_READY);
 			scsi_sense_buffer[0] = SK_DRIVE_NOT_READY;
 		} else {
-			m_seek = get_u24be(&scsi_cmdbuf[1]) & 0x1fffff;
+			//lba = get_u24be(&scsi_cmdbuf[1]) & 0x1fffff;
 			scsi_status_complete(SS_GOOD);
 		}
 		break;
@@ -121,7 +123,8 @@ void nscsi_dtc510_device::scsi_command()
 		{
 			const auto &info = image->get_info();
 			auto block = std::make_unique<uint8_t[]>(info.sectorbytes);
-			memset(&block[0], 0x6c, info.sectorbytes);
+			const u8 fill_byte = scsi_cmdbuf[3] == 0 ? 0xe5 : scsi_cmdbuf[3];
+			memset(&block[0], fill_byte, info.sectorbytes);
 			lba = get_u24be(&scsi_cmdbuf[1]) & 0x1fffff;
 			for(; lba < (info.cylinders * info.heads * info.sectors); lba++) {
 				image->write(lba, block.get());
@@ -245,7 +248,9 @@ void nscsi_dtc510_device::scsi_put_data(int id, int pos, uint8_t data)
 // Byte transfer rate (5Mb/s)
 attotime nscsi_dtc510_device::scsi_data_byte_period()
 {
-	return attotime::from_nsec(1600);
+	// Too slow, won't complete a DMA cycle when fetching IPL for pc9801
+	//	return attotime::from_nsec(1600);
+	return attotime::from_nsec(1100);
 }
 
 // Command execution delay
