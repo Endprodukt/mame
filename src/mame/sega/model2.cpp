@@ -1204,6 +1204,13 @@ void model2o_state::daytona_output_w(u8 data)
 	machine().bookkeeping().coin_counter_w(1, BIT(data, 1));
 	machine().bookkeeping().coin_counter_w(0, BIT(data, 0));
 	m_output[1] = data;
+
+	output().set_value("lamp_leader", BIT(data, 7));
+	output().set_value("lamp_vr4", BIT(data, 6));
+	output().set_value("lamp_vr3", BIT(data, 5));
+	output().set_value("lamp_vr2", BIT(data, 4));
+	output().set_value("lamp_vr1", BIT(data, 3));
+	output().set_value("lamp_start", BIT(data, 2));
 }
 
 void model2o_state::desert_output_w(u8 data)
@@ -1219,7 +1226,15 @@ void model2o_state::desert_output_w(u8 data)
 
 	machine().bookkeeping().coin_counter_w(1, BIT(data, 1));
 	machine().bookkeeping().coin_counter_w(0, BIT(data, 0));
+		
 	m_output[1] = data;
+
+	output().set_value("cannon_motor", BIT(data, 7));
+	output().set_value("machinegun_motor", BIT(data, 6));
+	output().set_value("lamp_vr1", BIT(data, 5));
+	output().set_value("lamp_vr2", BIT(data, 4));
+	output().set_value("lamp_vr3", BIT(data, 3));
+	output().set_value("lamp_start", BIT(data, 2)
 }
 
 void model2o_state::vcop_output_w(u8 data)
@@ -1231,7 +1246,15 @@ void model2o_state::vcop_output_w(u8 data)
 
 	machine().bookkeeping().coin_counter_w(1, BIT(~data, 1));
 	machine().bookkeeping().coin_counter_w(0, BIT(~data, 0));
+
 	m_output[1] = data;
+
+	output().set_value("start_led_1", BIT(data, 2));
+	output().set_value("start_led_2", BIT(data, 3));
+	output().set_value("unknown_4", BIT(data, 4));
+	output().set_value("unknown_5", BIT(data, 5));
+	output().set_value("unknown_6", BIT(data, 6));
+	output().set_value("unknown_7", BIT(data, 7));
 }
 
 
