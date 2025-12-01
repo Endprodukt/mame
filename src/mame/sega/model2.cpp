@@ -145,6 +145,7 @@ void model2_state::machine_start()
 	debug_init();
 
 	m_output.resolve();
+	m_wheel_motor.resolve();
 
 	save_item(NAME(m_intreq));
 	save_item(NAME(m_intena));
@@ -1203,6 +1204,7 @@ void model2o_state::daytona_output_w(u8 data)
 
 	machine().bookkeeping().coin_counter_w(1, BIT(data, 1));
 	machine().bookkeeping().coin_counter_w(0, BIT(data, 0));
+
 	m_output[1] = data;
 
 	output().set_value("lamp_leader", BIT(data, 7));
@@ -1234,7 +1236,7 @@ void model2o_state::desert_output_w(u8 data)
 	output().set_value("lamp_vr1", BIT(data, 5));
 	output().set_value("lamp_vr2", BIT(data, 4));
 	output().set_value("lamp_vr3", BIT(data, 3));
-	output().set_value("lamp_start", BIT(data, 2)
+	output().set_value("lamp_start", BIT(data, 2));
 }
 
 void model2o_state::vcop_output_w(u8 data)
@@ -1571,7 +1573,7 @@ void model2_state::rchase2_drive_board_w(u8 data)
 
 void model2_state::drive_board_w(u8 data)
 {
-	m_output[0] = data;
+	m_wheel_motor = data;
 	m_driveio_comm_data = data;
 	if (m_drivecpu)
 		m_drivecpu->set_input_line(0, HOLD_LINE);
