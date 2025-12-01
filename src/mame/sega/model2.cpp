@@ -1258,6 +1258,54 @@ void model2o_state::vcop_output_w(u8 data)
 	output().set_value("unknown_6", BIT(data, 6));
 	output().set_value("unknown_7", BIT(data, 7));
 }
+void model2a_state::srallyc_output_w(u8 data)
+{
+	m_output[1] = data;
+	output().set_value("Lamp_Start", BIT(data, 2));
+	output().set_value("Lamp_View", BIT(data, 5));
+	output().set_value("Lamp_Race_Leader", BIT(data, 7));
+}
+
+void model2b_state::indy500_output_w(u8 data)
+{
+	m_output[1] = data;
+	output().set_value("Lamp_Start", BIT(data, 2));
+	output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
+	output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
+	output().set_value("Lamp_Race_Leader", BIT(data, 7));
+}
+
+void model2b_state::overrev2b_output_w(u8 data)
+{
+	m_output[1] = data;
+	output().set_value("Lamp_Start", BIT(data, 2));
+	output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
+	output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
+}
+
+void model2c_state::overrev2c_output_w(u8 data)
+{
+	m_output[1] = data;
+	output().set_value("Lamp_Start", BIT(data, 2));
+	output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
+	output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
+}
+
+void model2b_state::sgt24h_output_w(u8 data)
+{
+	m_output[1] = data;
+	output().set_value("Lamp_Start", BIT(data, 2));
+	output().set_value("Lamp_View", BIT(data, 3));
+}
+
+void model2c_state::stcc_output_w(u8 data)
+{
+	m_output[1] = data;
+	output().set_value("Lamp_Start", BIT(data, 2));
+	output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
+	output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
+	output().set_value("Lamp_Rev_Max", BIT(data, 3));
+}
 
 //**************************************************************************
 //  I/O BOARD
@@ -1581,44 +1629,6 @@ void model2_state::drive_board_w(u8 data)
 void model2_state::gen_outputs_w(u8 data)
 {
 	m_output[1] = data;
-
-	const char* name = machine().system().name;
-
-	if (strncmp(name, "srallyc", 7) == 0)
-	{
-		output().set_value("Lamp_Start", BIT(data, 2));
-		output().set_value("Lampe_View", BIT(data, 5));
-		output().set_value("Lamp_Race_Leader", BIT(data, 7));
-	}
-
-	if (strncmp(name, "indy500", 7) == 0)
-	{
-		output().set_value("Lamp_Start", BIT(data, 2));
-		output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
-		output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
-		output().set_value("Lamp_Race_Leader", BIT(data, 7));
-	}
-
-	if (strncmp(name, "overrev", 7) == 0)
-	{
-		output().set_value("Lamp_Start", BIT(data, 2));
-		output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
-		output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
-	}
-
-	if (strncmp(name, "sgt24h", 6) == 0)
-	{
-		output().set_value("Lamp_Start", BIT(data, 2));
-		output().set_value("Lamp_View", BIT(data, 3));
-	}
-
-	if (strncmp(name, "stcc", 4) == 0)
-	{
-		output().set_value("Lamp_Start", BIT(data, 2));
-		output().set_value("Lamp_View1_Zoom_In", BIT(data, 4));
-		output().set_value("Lamp_View2_Zoom_Out", BIT(data, 5));
-		output().set_value("Lamp_Rev_Max", BIT(data, 3));
-	}
 }
 
 //**************************************************************************
@@ -2838,6 +2848,7 @@ void model2a_state::srallyc(machine_config &config)
 
 	sega_315_5649_device &io(*subdevice<sega_315_5649_device>("io"));
 	io.out_pe_callback().set(FUNC(model2a_state::drive_board_w));
+	io.out_pf_callback().set(FUNC(model2a_state::srallyc_output_w));
 	io.an_port_callback<0>().set_ioport("STEER");
 	io.an_port_callback<1>().set_ioport("ACCEL");
 	io.an_port_callback<2>().set_ioport("BRAKE");
@@ -2962,6 +2973,19 @@ void model2b_state::indy500(machine_config &config)
 
 	sega_315_5649_device &io(*subdevice<sega_315_5649_device>("io"));
 	io.out_pe_callback().set(FUNC(model2b_state::drive_board_w));
+	io.out_pf_callback().set(FUNC(model2b_state::indy500_output_w));
+	io.an_port_callback<0>().set_ioport("STEER");
+	io.an_port_callback<1>().set_ioport("ACCEL");
+	io.an_port_callback<2>().set_ioport("BRAKE");
+}
+
+void model2b_state::sgt24h(machine_config& config)
+{
+	model2b(config);
+
+	sega_315_5649_device& io(*subdevice<sega_315_5649_device>("io"));
+	io.out_pe_callback().set(FUNC(model2b_state::drive_board_w));
+	io.out_pf_callback().set(FUNC(model2b_state::sgt24h_output_w));
 	io.an_port_callback<0>().set_ioport("STEER");
 	io.an_port_callback<1>().set_ioport("ACCEL");
 	io.an_port_callback<2>().set_ioport("BRAKE");
@@ -2973,6 +2997,7 @@ void model2b_state::overrev2b(machine_config &config)
 
 	sega_315_5649_device &io(*subdevice<sega_315_5649_device>("io"));
 	io.out_pe_callback().set(FUNC(model2b_state::drive_board_w));
+	io.out_pf_callback().set(FUNC(model2b_state::overrev2b_output_w));
 	io.an_port_callback<0>().set_ioport("STEER");
 	io.an_port_callback<1>().set_ioport("ACCEL");
 	io.an_port_callback<2>().set_ioport("BRAKE");
@@ -3099,6 +3124,7 @@ void model2c_state::stcc(machine_config &config)
 
 	sega_315_5649_device &io(*subdevice<sega_315_5649_device>("io"));
 	io.out_pe_callback().set(FUNC(model2c_state::drive_board_w));
+	io.out_pf_callback().set(FUNC(model2c_state::stcc_output_w));
 	io.an_port_callback<0>().set_ioport("STEER");
 	io.an_port_callback<1>().set_ioport("ACCEL");
 	io.an_port_callback<2>().set_ioport("BRAKE");
@@ -3157,6 +3183,7 @@ void model2c_state::overrev2c(machine_config &config)
 
 	sega_315_5649_device &io(*subdevice<sega_315_5649_device>("io"));
 	io.out_pe_callback().set(FUNC(model2c_state::drive_board_w));
+	io.out_pf_callback().set(FUNC(model2c_state::overrev2c_output_w));
 	io.an_port_callback<0>().set_ioport("STEER");
 	io.an_port_callback<1>().set_ioport("ACCEL");
 	io.an_port_callback<2>().set_ioport("BRAKE");

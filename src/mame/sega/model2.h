@@ -488,6 +488,8 @@ protected:
 	void model2a_5881_mem(address_map &map) ATTR_COLD;
 	void model2a_0229_mem(address_map &map) ATTR_COLD;
 
+	void srallyc_output_w(u8 data);
+	
 private:
 	required_device<sega_billboard_device> m_billboard;
 };
@@ -533,6 +535,7 @@ public:
 	void overrev2b(machine_config &config);
 	void powsled(machine_config &config);
 	void rchase2(machine_config &config);
+	void sgt24h(machine_config& config);
 	void gunblade(machine_config &config);
 	void dynabb(machine_config &config);
 	void zerogun(machine_config &config);
@@ -540,6 +543,10 @@ public:
 protected:
 	virtual void machine_start() override ATTR_COLD;
 	virtual void machine_reset() override ATTR_COLD;
+
+	void indy500_output_w(u8 data);
+	void overrev2b_output_w(u8 data);
+	void sgt24h_output_w(u8 data);
 
 	required_device<adsp21062_device> m_copro_adsp;
 
@@ -596,6 +603,9 @@ public:
 protected:
 	virtual void machine_start() override ATTR_COLD;
 	virtual void machine_reset() override ATTR_COLD;
+
+	void overrev2c_output_w(u8 data);
+	void stcc_output_w(u8 data);
 
 	required_device<mb86235_device> m_copro_tgpx4;
 	required_shared_ptr<u64> m_copro_tgpx4_program;
