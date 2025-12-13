@@ -191,6 +191,9 @@ void menu_main::populate()
 
 	item_append(menu_item_type::SEPARATOR);
 
+	// DISABLE SELECT NEW MACHINE & FAVORITES
+	if (!machine().options().skip_gameinfo())
+	{
 	if (!mame_machine_manager::instance()->favorite().is_favorite(machine()))
 		item_append(_("menu-main", "Add To Favorites"), 0, (void *)FAVORITE);
 	else
@@ -201,6 +204,7 @@ void menu_main::populate()
 	item_append(string_format(_("menu-main", "About %1$s"), emulator_info::get_appname()), 0, (void *)ABOUT);
 
 	item_append(menu_item_type::SEPARATOR);
+	}
 
 //  item_append(_("menu-main", "Quit From System"), 0, (void *)QUIT_GAME);
 
@@ -210,6 +214,7 @@ void menu_main::populate()
 	}
 	else
 	{
+		if (!machine().options().skip_gameinfo())
 		item_append(_("menu-main", "Select New System"), 0, (void *)SELECT_GAME);
 		item_append(_("menu-main", "Close Menu"), 0, (void *)DISMISS);
 	}
